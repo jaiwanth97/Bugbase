@@ -52,7 +52,7 @@ router.get('/', AuthenticateUser, async(req,res)=>{
 
     res.send(result)
 })
-
+ 
 router.get('/:id', AuthenticateUser, async(req,res)=>{
     if(!mongoose.Types.ObjectId.isValid(req.params.id)) {
         return res.status(400).send({message: 'Invalid bug ID'})
