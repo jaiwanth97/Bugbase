@@ -74,18 +74,3 @@ router.post('/login', async(req,res)=>{
     }
 })
 
-router.get('/me', AuthenticateUsers, async(req,res)=>{
-    try{
-        const user = await User.findById(req.user._id).select('-password')
-        if(!user) {
-            return res.status(404).send({message: 'User not found'})
-        }
-
-        res.send({user})
-    }catch(err) {
-        console.error(err)
-        return res.status(500).send({message: 'Server issue'})
-    }
-})
-
-module.exports = router;
