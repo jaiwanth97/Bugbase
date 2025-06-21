@@ -31,18 +31,3 @@ const bugSchema = new mongoose.Schema({
     }
 }, {timestamps: true})
 
-const validateBug = (data) => {
-  const schema = Joi.object({
-    title: Joi.string().trim().required(),
-    description: Joi.string().allow('', null),
-    status: Joi.string().valid('open', 'inprogress', 'closed'),
-    priority: Joi.string().valid('low', 'medium', 'high'),
-    reporter: Joi.string().required()  // expects user ID as string
-  });
-  return schema.validate(data);
-};
-const Bug = mongoose.model('Bug', bugSchema)
-module.exports = {
-    Bug,
-    validateBug
-}
