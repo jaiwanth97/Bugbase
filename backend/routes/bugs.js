@@ -121,16 +121,3 @@ router.put('/:id/approve', AuthenticateUser, async(req,res)=>{
     res.send({message: 'Bug status saved'})
 })
 
-router.delete('/:id', AuthenticateUser, async(req,res)=>{
-    if(req.user.role !== 'admin') {
-        return res.status(403).send({message: 'Only admins can delete a bug'})
-    }
-
-    const bug = await Bug.findByIdAndDelete(req.params.id)
-    if(!bug) {
-        return res.status(403).send({message: 'No bug with the given ID found'})
-    }
-
-    res.send({message: 'Bug not found'})
-})
-module.exports = router
