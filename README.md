@@ -130,8 +130,5 @@ Roadmap Ideas
 - Avatars and richer metadata on cards
 - Pagination and server-side filters
 
-License
--------
-MIT
 
 
