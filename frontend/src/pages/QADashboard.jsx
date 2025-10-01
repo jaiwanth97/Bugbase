@@ -9,11 +9,14 @@ function QADashboard() {
   const { token } = useAuth();
 
   useEffect(() => {
+    if (!token) return;
     fetchBugs();
-  }, []);
+    const interval = setInterval(fetchBugs, 5000);
+    return () => clearInterval(interval);
+  }, [token]);
 
   const fetchBugs = async () => {
-    const response = await axios.get('http://localhost:5000/api/bugs/qa', {
+    const response = await axios.get('http://localhost:5000/api/bugs/qa/list', {
       headers: { Authorization: `Bearer ${token}` }
     });
     setBugs(response.data);

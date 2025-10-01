@@ -1,12 +1,17 @@
 :root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
+  --bg-muted: #f7f7fb;
+  --text-primary: #111827;
+  --text-secondary: #4b5563;
+  --brand: #2563eb;
+  --brand-weak: rgba(37, 99, 235, 0.10);
+  --surface: #ffffff;
+  --border: #e5e7eb;
+  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  line-height: 1.6;
   font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
-
+  color-scheme: light;
+  color: var(--text-primary);
+  background-color: var(--bg-muted);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -22,12 +27,16 @@ a:hover {
   color: #535bf2;
 }
 
+/* Base layout reset */
+html, body, #root {
+  height: 100%;
+}
+
 body {
   margin: 0;
-  display: flex;
-  place-items: center;
   min-width: 320px;
-  min-height: 100vh;
+  background: var(--bg-muted);
+  overflow-x: hidden;
 }
 
 h1 {
@@ -36,26 +45,11 @@ h1 {
 }
 
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
   cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
 }
 
 .MuiDrawer-paper {
-  background-color: #f5f5f5 !important;
+  background-color: var(--surface) !important;
 }
 
 .bug-card {
@@ -68,25 +62,27 @@ button:focus-visible {
 
 /* Kanban Board Styles */
 .kanban-column {
-  background: #f5f5f5;
-  border-radius: 8px;
+  background: var(--surface);
+  border-radius: 12px;
   padding: 16px;
   min-width: 280px;
+  border: 1px solid var(--border);
 }
 
 .kanban-card {
-  background: white;
-  border-radius: 4px;
-  padding: 8px;
-  margin-bottom: 8px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  background: var(--surface);
+  border-radius: 10px;
+  padding: 12px;
+  margin-bottom: 10px;
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 4px 12px rgba(0,0,0,0.04);
   cursor: grab;
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
 .kanban-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.08);
 }
 
 /* Scrollbar Styles */
@@ -99,23 +95,38 @@ button:focus-visible {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #888;
-  border-radius: 4px;
+  background: #c7c9d1;
+  border-radius: 8px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+/* Subtle link styling */
+a {
+  color: var(--brand);
+  text-decoration: none;
+}
+a:hover {
+  text-decoration: underline;
+}
+
+/* Dark mode variables */
+body[data-theme='dark'] {
+  --bg-muted: #0b1020;
+  --text-primary: #e5e7eb;
+  --text-secondary: #9ca3af;
+  --brand: #60a5fa;
+  --brand-weak: rgba(96, 165, 250, 0.16);
+  --surface: #0f172a;
+  --border: #1f2937;
+}
+
+body[data-theme='dark'] a:hover {
+  text-decoration: underline;
+}
+
+body[data-theme='dark'] ::-webkit-scrollbar-thumb {
+  background: #3b4050;
 }

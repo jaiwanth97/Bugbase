@@ -1,9 +1,11 @@
-import { useState, useEffect } from 'react';
-import { Box, Typography } from '@mui/material';
+import { useState, useEffect, useMemo } from 'react';
+import { Box, Grid, Button } from '@mui/material';
 import KanbanBoard from '../components/KanbanBoard';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import PageHeader from '../components/PageHeader';
+import StatCard from '../components/StatCard';
 
 function Dashboard() {
   const [columns, setColumns] = useState({
@@ -74,11 +76,28 @@ function Dashboard() {
     }
   };
 
+  const stats = useMemo(() => ({
+    open: columns.open.items.length,
+    inProgress: columns.inProgress.items.length,
+    qa: columns.qa.items.length,
+    closed: columns.closed.items.length,
+  }), [columns]);
+
   return (
     <Box sx={{ p: 3 }}>
-      <Typography variant="h4" sx={{ mb: 3 }}>Bug Tracking Dashboard</Typography>
-      <Typography variant="h6" sx={{ mb: 3 }}>Welcome {user?.username}</Typography>
-      <Typography variant="subtitle1" sx={{ mb: 3 }}>Role: {user?.role}</Typography>
+      <PageHeader
+        title="Bug Tracking Dashboard"
+        subtitle={`Welcome ${user?.username} · Role: ${user?.role}`}
+        actions={<Button variant="contained">New Bug</Button>}
+      />
+
+      <Grid container spacing={2} sx={{ mb: 2 }}>
+        <Grid item xs={12} sm={6} md={3}><StatCard label="Open" value={stats.open} /></Grid>
+        <Grid item xs={12} sm={6} md={3}><StatCard label="In Progress" value={stats.inProgress} /></Grid>
+        <Grid item xs={12} sm={6} md={3}><StatCard label="QA Review" value={stats.qa} /></Grid>
+        <Grid item xs={12} sm={6} md={3}><StatCard label="Closed" value={stats.closed} /></Grid>
+      </Grid>
+
       <KanbanBoard columns={columns} onDragEnd={onDragEnd} />
     </Box>
   );

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Box, Button, TextField, Typography, Container, Paper, Alert } from '@mui/material';
+import { Box, Button, TextField, Typography, Container, Paper, Alert, InputAdornment } from '@mui/material';
+import { Lock, Mail } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 
 function Login() {
@@ -25,11 +26,12 @@ function Login() {
   };
 
   return (
-    <Container component="main" maxWidth="xs">
-      <Paper elevation={3} sx={{ p: 4, mt: 8 }}>
-        <Typography component="h1" variant="h5" align="center" gutterBottom>
-          BugBase Login
-        </Typography>
+    <Container component="main" maxWidth="sm" sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', minHeight: 'calc(100vh - 120px)' }}>
+      <Paper sx={{ p: 5, width: '100%', border: (t) => `1px solid ${t.palette.divider}` }}>
+        <Box sx={{ textAlign: 'center', mb: 3 }}>
+          <Typography variant="h4" sx={{ fontWeight: 700, mb: 0.5 }}>BugBase</Typography>
+          <Typography variant="body2" color="text.secondary">Sign in to continue</Typography>
+        </Box>
         {error && (
           <Alert severity="error" sx={{ mb: 2 }}>
             {error}
@@ -46,6 +48,7 @@ function Login() {
             autoFocus
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            InputProps={{ startAdornment: (<InputAdornment position="start"><Mail fontSize="small" /></InputAdornment>) }}
           />
           <TextField
             margin="normal"
@@ -56,12 +59,13 @@ function Login() {
             autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            InputProps={{ startAdornment: (<InputAdornment position="start"><Lock fontSize="small" /></InputAdornment>) }}
           />
           <Button
             type="submit"
             fullWidth
             variant="contained"
-            sx={{ mt: 3, mb: 2 }}
+            sx={{ mt: 3 }}
           >
             Sign In
           </Button>

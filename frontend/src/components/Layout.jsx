@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom';
-import { Box, AppBar, Toolbar, Typography, Drawer, List, ListItem, ListItemIcon, ListItemText, IconButton } from '@mui/material';
-import { BugReport, Assignment, Speed, Logout, Dashboard } from '@mui/icons-material';
+import { Box, AppBar, Toolbar, Typography, IconButton, Tooltip, Menu, MenuItem, Divider, Dialog, DialogTitle, DialogContent, DialogActions, Button, FormControlLabel, Switch } from '@mui/material';
+import { Logout, AccountCircle } from '@mui/icons-material';
 import { useAuth } from '../contexts/AuthContext';
 import UserDashboard from '../pages/UserDashboard';
 import AdminDashboard from '../pages/AdminDashboard';
@@ -11,7 +11,7 @@ import Login from '../pages/Login';
 
 const drawerWidth = 240;
 
-function Layout() {
+function Layout({ mode, onToggleMode }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
@@ -54,38 +54,17 @@ function Layout() {
   };
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box sx={{ display: 'flex', backgroundColor: (t) => t.palette.background.default, minHeight: '100vh' }}>
       <AppBar position="fixed" sx={{ zIndex: (theme) => theme.zIndex.drawer + 1 }}>
         <Toolbar>
           <Typography variant="h6" noWrap sx={{ flexGrow: 1 }}>
-            BugBase - {user.role.toUpperCase()}
+            BugBase · {user.role.toUpperCase()}
           </Typography>
-          <IconButton color="inherit" onClick={logout}>
-            <Logout />
-          </IconButton>
+          <TopNavActions mode={mode} onToggleMode={onToggleMode} onLogout={logout} user={user} />
         </Toolbar>
       </AppBar>
-
-      <Drawer
-        variant="permanent"
-        sx={{
-          width: drawerWidth,
-          flexShrink: 0,
-          '& .MuiDrawer-paper': { width: drawerWidth, boxSizing: 'border-box' },
-        }}
-      >
+      <Box component="main" sx={{ flexGrow: 1, p: 3, width: '100%' }}>
         <Toolbar />
-        <List>
-          {getMenuItems(user.role).map((item) => (
-            <ListItem button key={item.text} onClick={() => navigate(item.path)}>
-              <ListItemIcon>{item.icon}</ListItemIcon>
-              <ListItemText primary={item.text} />
-            </ListItem>
-          ))}
-        </List>
-      </Drawer>
-
-      <Box component="main" sx={{ flexGrow: 1, p: 3, mt: 8 }}>
         <Routes>
           <Route 
             path="/dashboard" 
@@ -106,3 +85,52 @@ function Layout() {
 }
 
 export default Layout;
+
+function TopNavActions({ mode, onToggleMode, onLogout, user }) {
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [settingsOpen, setSettingsOpen] = useState(false);
+  const open = Boolean(anchorEl);
+
+  const handleMenu = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  const handleClose = () => setAnchorEl(null);
+
+  return (
+    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+      <Tooltip title={`Switch to ${mode === 'light' ? 'dark' : 'light'} mode`}>
+        <IconButton color="inherit" onClick={onToggleMode} sx={{ mr: 1 }}>
+          {mode === 'light' ? '🌙' : '☀️'}
+        </IconButton>
+      </Tooltip>
+      <IconButton color="inherit" onClick={handleMenu}>
+        <AccountCircle />
+      </IconButton>
+      <Menu
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+        anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+        transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+      >
+        <MenuItem disabled>{user?.username || 'User'}</MenuItem>
+        <Divider />
+        <MenuItem onClick={() => { setSettingsOpen(true); handleClose(); }}>Settings</MenuItem>
+        <MenuItem onClick={() => { onLogout(); handleClose(); }}>Logout</MenuItem>
+      </Menu>
+
+      <Dialog open={settingsOpen} onClose={() => setSettingsOpen(false)}>
+        <DialogTitle>Settings</DialogTitle>
+        <DialogContent dividers>
+          <FormControlLabel
+            control={<Switch checked={mode === 'dark'} onChange={onToggleMode} />}
+            label="Dark mode"
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setSettingsOpen(false)}>Close</Button>
+        </DialogActions>
+      </Dialog>
+    </Box>
+  );
+}

@@ -8,8 +8,11 @@ function DevDashboard() {
   const { token } = useAuth();
 
   useEffect(() => {
+    if (!token) return;
     fetchTasks();
-  }, []);
+    const interval = setInterval(fetchTasks, 5000);
+    return () => clearInterval(interval);
+  }, [token]);
 
   const fetchTasks = async () => {
     try {
