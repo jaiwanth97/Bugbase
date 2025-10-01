@@ -12,7 +12,7 @@ router.post('/register', async (req, res) => {
     return res.status(400).send({ message: error.details[0].message });
   }
 
-  const { email, username, password } = req.body;
+  const { email, username, password, role } = req.body;
 
   try {
     const userEmail = await User.findOne({ email });
@@ -31,7 +31,8 @@ router.post('/register', async (req, res) => {
     const user = new User({
       username,
       email,
-      password: hash
+      password: hash,
+      role: role || 'user' // Default role is 'user'
     });
 
     await user.save();
@@ -46,30 +47,42 @@ router.post('/register', async (req, res) => {
 router.post('/login', async(req,res)=>{
     const {error} = validateLogin(req.body)
     if(error) {
+        console.log('Validation error:', error.details[0].message);
         return res.status(400).send({message: error.details[0].message})
     }
 
     const {email, password} = req.body
+    console.log('Login attempt for email:', email);
 
     try{
-        
         const user = await User.findOne({email})
         if(!user) {
+            console.log('User not found for email:', email);
             return res.status(400).send({message: 'Invalid email or password'})
         }
 
         const ValidPass = await bcrypt.compare(password, user.password)
         if(!ValidPass) {
+            console.log('Invalid password for email:', email);
             return res.status(400).send({message: 'Invalid email or password'})
         }
 
         const token = jwt.sign({
-            _id: user._id, role: user.role, username: user.username
+            _id: user._id, 
+            role: user.role, 
+            username: user.username,
+            email: user.email
         }, TOKEN)
 
-        res.send({token})
+        console.log('Login successful for:', email);
+        res.send({token, user: { 
+            _id: user._id,
+            username: user.username,
+            email: user.email,
+            role: user.role
+        }})
     }catch(err) {
-        console.error(err)
+        console.error('Login error:', err)
         return res.status(500).send({message: 'Server issue'})
     }
 })
@@ -88,5 +101,48 @@ router.get('/me', AuthenticateUsers, async(req,res)=>{
         return res.status(500).send({message: 'Server issue'})
     }
 })
+
+// Add this route after existing routes
+router.put('/role/:userId', AuthenticateUsers, async(req, res) => {
+    if(req.user.role !== 'admin') {
+        return res.status(403).send({ message: 'Only admins can update roles' });
+    }
+
+    const allowedRoles = ['admin', 'dev', 'qa', 'user'];
+    const { role } = req.body;
+
+    if (!allowedRoles.includes(role)) {
+        return res.status(400).send({ message: 'Invalid role' });
+    }
+
+    try {
+        const user = await User.findByIdAndUpdate(
+            req.params.userId,
+            { role },
+            { new: true }
+        ).select('-password');
+
+        if (!user) {
+            return res.status(404).send({ message: 'User not found' });
+        }
+
+        res.send({ user });
+    } catch (err) {
+        console.error(err);
+        res.status(500).send({ message: 'Server issue' });
+    }
+});
+
+// Add route to get all developers
+router.get('/developers', AuthenticateUsers, async(req, res) => {
+    try {
+        const developers = await User.find({ role: 'dev' })
+            .select('username email');
+        res.send(developers);
+    } catch (err) {
+        console.error(err);
+        res.status(500).send({ message: 'Server issue' });
+    }
+});
 
 module.exports = router;

@@ -17,40 +17,43 @@ router.post('/', AuthenticateUser, async(req,res)=>{
     const bug = new Bug({
         title: req.body.title,
         description: req.body.description,
-        status: req.body.status,
-        priority: req.body.priority,
-        reporter: req.user._id,
-        isApproved: req.body.isApproved
+        status: req.body.status || 'open',
+        priority: req.body.priority || 'low',
+        reporter: req.user._id,  // Set reporter from authenticated user
+        isApproved: false
     })
 
-    await bug.save()
-    res.status(201).send({message: 'Bug is reported successfully', bug})
+    try {
+        await bug.save()
+        res.status(201).send({message: 'Bug is reported successfully', bug})
+    } catch(err) {
+        console.error('Error creating bug:', err)
+        res.status(500).send({message: 'Server error while creating bug'})
+    }
 })
 
 router.get('/', AuthenticateUser, async(req,res)=>{
-    let bugs
-
-    if(req.user.role === 'admin') {
-        bugs = await Bug.find().populate('reporter', 'username email')
-    } else if(req.user.role === 'user') {
-        bugs = await Bug.find({reporter: req.user._id}).populate('reporter', 'username email')
-    } else {
-        bugs = await Bug.find({isApproved: true}).populate('reporter', 'username email')
-    }
-
-    const result = bugs.map(bug=>{
-        const showstatus = req.user.role === 'admin' || bug.reporter._id.equals(req.user._id)
-        return{
-            _id: bug._id,
-            title: bug.title,
-            description: bug.description,
-            priority: bug.priority,
-            reporter: bug.reporter,
-            ...(showstatus ? { status: bug.status } : {}),
+    try {
+        let bugs;
+        if(req.user.role === 'admin') {
+            bugs = await Bug.find()
+                .populate('reporter', 'username email')
+                .populate('assignedTo', 'username email')
+                .sort('-createdAt');
+        } else if(req.user.role === 'user') {
+            bugs = await Bug.find({reporter: req.user._id})
+                .populate('reporter', 'username email')
+                .populate('assignedTo', 'username email');
+        } else {
+            bugs = await Bug.find({isApproved: true})
+                .populate('reporter', 'username email')
+                .populate('assignedTo', 'username email');
         }
-    })
-
-    res.send(result)
+        res.send(bugs);
+    } catch(error) {
+        console.error('Error fetching bugs:', error);
+        res.status(500).send({message: 'Server error while fetching bugs'});
+    }
 })
  
 router.get('/:id', AuthenticateUser, async(req,res)=>{

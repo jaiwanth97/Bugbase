@@ -36,8 +36,8 @@ const validateBug = (data) => {
     title: Joi.string().trim().required(),
     description: Joi.string().allow('', null),
     status: Joi.string().valid('open', 'inprogress', 'closed'),
-    priority: Joi.string().valid('low', 'medium', 'high'),
-    reporter: Joi.string().required()  // expects user ID as string
+    priority: Joi.string().valid('low', 'medium', 'high')
+    // removed reporter from validation as it's set from auth token
   });
   return schema.validate(data);
 };
