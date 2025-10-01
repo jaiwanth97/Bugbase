@@ -121,6 +121,7 @@ body[data-theme='dark'] {
   --brand-weak: rgba(96, 165, 250, 0.16);
   --surface: #0f172a;
   --border: #1f2937;
+  scrollbar-color: #3b4050 #111827;
 }
 
 body[data-theme='dark'] a:hover {
@@ -129,4 +130,13 @@ body[data-theme='dark'] a:hover {
 
 body[data-theme='dark'] ::-webkit-scrollbar-thumb {
   background: #3b4050;
+}
+
+body[data-theme='dark'] ::-webkit-scrollbar-track {
+  background: #111827;
+}
+
+/* Firefox light theme scrollbar colors */
+body:not([data-theme='dark']) {
+  scrollbar-color: #c7c9d1 #f1f1f1;
 }

@@ -211,8 +211,9 @@ function AdminDashboard() {
               border: (t) => `1px solid ${t.palette.divider}`
             }}
           >
-            <Box sx={{ p: 2, bgcolor: color, color: 'white' }}>
+            <Box sx={{ p: 2, bgcolor: color, color: 'white', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <Typography variant="h6">{title} ({columnBugs.length})</Typography>
+              <Chip size="small" label={showDevs ? `${devs.length} devs` : `${columnBugs.length} items`} sx={{ bgcolor: 'rgba(255,255,255,0.2)', color: 'white' }} />
             </Box>
 
             {showDevs ? (

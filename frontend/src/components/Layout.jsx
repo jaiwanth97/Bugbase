@@ -36,6 +36,12 @@ function Layout({ mode, onToggleMode }) {
     }
   };
 
+  const { initializing } = useAuth();
+
+  if (initializing) {
+    return <Box sx={{ p: 6, display: 'flex', justifyContent: 'center', alignItems: 'center' }}>Loading...</Box>;
+  }
+
   if (!user) {
     return <Login />;
   }

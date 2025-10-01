@@ -1,4 +1,4 @@
-import { createContext, useContext, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import axios from 'axios';
 
 const AuthContext = createContext(null);
@@ -6,6 +6,7 @@ const AuthContext = createContext(null);
 function AuthProvider({ children }) {
   const [user, setUser] = useState(null);
   const [token, setToken] = useState(localStorage.getItem('token'));
+  const [initializing, setInitializing] = useState(true);
 
   const login = async (email, password) => {
     try {
@@ -17,6 +18,7 @@ function AuthProvider({ children }) {
       const { token } = response.data;
       localStorage.setItem('token', token);
       setToken(token);
+      axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       
       const userResponse = await axios.get('http://localhost:5000/api/users/me', {
         headers: { Authorization: `Bearer ${token}` }
@@ -34,11 +36,37 @@ function AuthProvider({ children }) {
     localStorage.removeItem('token');
     setToken(null);
     setUser(null);
+    delete axios.defaults.headers.common['Authorization'];
   };
+
+  // Restore session on app load
+  useEffect(() => {
+    const restore = async () => {
+      if (!token) {
+        setInitializing(false);
+        return;
+      }
+      try {
+        axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+        const res = await axios.get('http://localhost:5000/api/users/me', {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        setUser(res.data.user);
+      } catch (e) {
+        localStorage.removeItem('token');
+        setToken(null);
+        delete axios.defaults.headers.common['Authorization'];
+      } finally {
+        setInitializing(false);
+      }
+    };
+    restore();
+  }, [token]);
 
   const value = {
     user,
     token,
+    initializing,
     login,
     logout
   };
