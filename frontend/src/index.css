@@ -66,6 +66,47 @@ button:focus-visible {
   transform: translateY(-2px);
 }
 
+/* Kanban Board Styles */
+.kanban-column {
+  background: #f5f5f5;
+  border-radius: 8px;
+  padding: 16px;
+  min-width: 280px;
+}
+
+.kanban-card {
+  background: white;
+  border-radius: 4px;
+  padding: 8px;
+  margin-bottom: 8px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12);
+  cursor: grab;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.kanban-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+}
+
+/* Scrollbar Styles */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;

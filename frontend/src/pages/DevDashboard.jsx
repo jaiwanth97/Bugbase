@@ -1,64 +1,65 @@
 import { useState, useEffect } from 'react';
-import { Box, Card, CardContent, Typography, Grid, Chip, Button } from '@mui/material';
+import { Box, Card, CardContent, Typography, Chip, Button, Grid } from '@mui/material';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
 
 function DevDashboard() {
-  const [bugs, setBugs] = useState([]);
+  const [tasks, setTasks] = useState([]);
   const { token } = useAuth();
 
   useEffect(() => {
-    fetchAssignedBugs();
+    fetchTasks();
   }, []);
 
-  const fetchAssignedBugs = async () => {
+  const fetchTasks = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/bugs', {
+      const response = await axios.get('http://localhost:5000/api/bugs/assigned', {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setBugs(response.data);
+      setTasks(response.data);
     } catch (error) {
-      console.error('Error fetching bugs:', error);
+      console.error('Error fetching tasks:', error);
     }
   };
 
-  const updateBugStatus = async (bugId, newStatus) => {
+  const handleStatusUpdate = async (bugId, newStatus) => {
     try {
       await axios.put(`http://localhost:5000/api/bugs/${bugId}/status`, {
         status: newStatus
       }, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      fetchAssignedBugs();
+      fetchTasks();
     } catch (error) {
-      console.error('Error updating bug status:', error);
+      console.error('Error updating task status:', error);
     }
   };
 
   return (
-    <Box>
-      <Typography variant="h4" gutterBottom>My Assigned Bugs</Typography>
+    <Box sx={{ p: 3 }}>
+      <Typography variant="h4" gutterBottom>My Tasks</Typography>
       <Grid container spacing={3}>
-        {bugs.map((bug) => (
-          <Grid item xs={12} md={6} key={bug._id}>
+        {tasks.map((task) => (
+          <Grid item xs={12} md={6} key={task._id}>
             <Card>
               <CardContent>
-                <Typography variant="h6">{bug.title}</Typography>
-                <Typography color="textSecondary">{bug.description}</Typography>
-                <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
-                  <Chip label={bug.priority} color="primary" />
-                  <Chip label={bug.status} color="secondary" />
+                <Typography variant="h6">{task.title}</Typography>
+                <Typography color="textSecondary" paragraph>
+                  {task.description}
+                </Typography>
+                <Box sx={{ display: 'flex', gap: 1, mb: 2 }}>
+                  <Chip label={task.priority} color="primary" />
+                  <Chip label={task.status} color="secondary" />
                 </Box>
-                <Box sx={{ mt: 2 }}>
-                  {bug.status === 'inprogress' && (
-                    <Button 
-                      variant="contained" 
-                      onClick={() => updateBugStatus(bug._id, 'qa')}
-                    >
-                      Submit for QA
-                    </Button>
-                  )}
-                </Box>
+                {task.status === 'inprogress' && (
+                  <Button
+                    variant="contained"
+                    color="primary"
+                    onClick={() => handleStatusUpdate(task._id, 'qa')}
+                  >
+                    Submit for QA
+                  </Button>
+                )}
               </CardContent>
             </Card>
           </Grid>

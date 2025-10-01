@@ -3,6 +3,7 @@ import { Box, Typography } from '@mui/material';
 import KanbanBoard from '../components/KanbanBoard';
 import { useAuth } from '../contexts/AuthContext';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 
 function Dashboard() {
   const [columns, setColumns] = useState({
@@ -12,7 +13,14 @@ function Dashboard() {
     closed: { title: 'Closed', items: [] }
   });
 
-  const { token } = useAuth();
+  const { user, token } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!token) {
+      navigate('/login');
+    }
+  }, [token, navigate]);
 
   useEffect(() => {
     fetchBugs();
@@ -69,6 +77,8 @@ function Dashboard() {
   return (
     <Box sx={{ p: 3 }}>
       <Typography variant="h4" sx={{ mb: 3 }}>Bug Tracking Dashboard</Typography>
+      <Typography variant="h6" sx={{ mb: 3 }}>Welcome {user?.username}</Typography>
+      <Typography variant="subtitle1" sx={{ mb: 3 }}>Role: {user?.role}</Typography>
       <KanbanBoard columns={columns} onDragEnd={onDragEnd} />
     </Box>
   );
