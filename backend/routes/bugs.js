@@ -34,21 +34,27 @@ router.post('/', AuthenticateUser, async(req,res)=>{
 
 router.get('/', AuthenticateUser, async(req,res)=>{
     try {
-        let bugs;
-        if(req.user.role === 'admin') {
-            bugs = await Bug.find()
-                .populate('reporter', 'username email')
-                .populate('assignedTo', 'username email')
-                .sort('-createdAt');
+        let query = {};
+        
+        if(req.user.role === 'dev') {
+            query = { 
+                assignedTo: req.user._id,
+                status: { $in: ['inprogress', 'qa'] }
+            };
         } else if(req.user.role === 'user') {
-            bugs = await Bug.find({reporter: req.user._id})
-                .populate('reporter', 'username email')
-                .populate('assignedTo', 'username email');
-        } else {
-            bugs = await Bug.find({isApproved: true})
-                .populate('reporter', 'username email')
-                .populate('assignedTo', 'username email');
+            query = { reporter: req.user._id };
+        } else if(req.user.role !== 'admin') {
+            query = { 
+                isApproved: true,
+                status: { $in: ['inprogress', 'qa', 'closed'] }
+            };
         }
+
+        const bugs = await Bug.find(query)
+            .populate('reporter', 'username email')
+            .populate('assignedTo', 'username email role')
+            .sort('-createdAt');
+            
         res.send(bugs);
     } catch(error) {
         console.error('Error fetching bugs:', error);
@@ -56,6 +62,49 @@ router.get('/', AuthenticateUser, async(req,res)=>{
     }
 })
  
+router.get('/dev/assigned', AuthenticateUser, async(req, res) => {
+    if(req.user.role !== 'dev') {
+        return res.status(403).send({ message: 'Access denied' });
+    }
+
+    try {
+        const bugs = await Bug.find({
+            assignedTo: req.user._id,
+            status: 'inprogress' // Only show in-progress bugs
+        })
+        .populate('reporter', 'username email')
+        .populate('assignedTo', 'username email role')
+        .sort('-updatedAt');
+
+        res.send(bugs);
+    } catch(error) {
+        console.error('Error fetching assigned bugs:', error);
+        res.status(500).send({ message: 'Server error while fetching bugs' });
+    }
+});
+
+// Alias to match frontend expectation
+router.get('/assigned', AuthenticateUser, async(req, res) => {
+    if(req.user.role !== 'dev') {
+        return res.status(403).send({ message: 'Access denied' });
+    }
+
+    try {
+        const bugs = await Bug.find({
+            assignedTo: req.user._id,
+            status: { $in: ['open', 'inprogress', 'qa'] }
+        })
+        .populate('reporter', 'username email')
+        .populate('assignedTo', 'username email role')
+        .sort('-updatedAt');
+
+        res.send(bugs);
+    } catch(error) {
+        console.error('Error fetching assigned bugs:', error);
+        res.status(500).send({ message: 'Server error while fetching bugs' });
+    }
+});
+
 router.get('/:id', AuthenticateUser, async(req,res)=>{
     if(!mongoose.Types.ObjectId.isValid(req.params.id)) {
         return res.status(400).send({message: 'Invalid bug ID'})
@@ -87,7 +136,7 @@ router.get('/:id', AuthenticateUser, async(req,res)=>{
 router.put('/:id/status', AuthenticateUser, async(req,res)=>{
     const {status} = req.body
 
-    if(!['open', 'inprogress', 'closed'].includes(status)) {
+    if(!['open', 'inprogress', 'qa', 'closed'].includes(status)) {
         return res.status(400).send({message: 'Invalid status'})
     }
 
@@ -108,6 +157,24 @@ router.put('/:id/status', AuthenticateUser, async(req,res)=>{
     await bug.save()
     res.status(200).send({message: 'Bug status saved'})
 })
+
+// QA queue for reviewers
+router.get('/qa/list', AuthenticateUser, async(req, res) => {
+    if(req.user.role !== 'qa' && req.user.role !== 'admin') {
+        return res.status(403).send({ message: 'Access denied' });
+    }
+
+    try {
+        const bugs = await Bug.find({ status: 'qa' })
+            .populate('reporter', 'username email')
+            .populate('assignedTo', 'username email role')
+            .sort('-updatedAt');
+        res.send(bugs);
+    } catch(error) {
+        console.error('Error fetching QA bugs:', error);
+        res.status(500).send({ message: 'Server error while fetching QA bugs' });
+    }
+});
 
 router.put('/:id/approve', AuthenticateUser, async(req,res)=>{
     if(req.user.role !== 'admin') {
@@ -136,4 +203,41 @@ router.delete('/:id', AuthenticateUser, async(req,res)=>{
 
     res.send({message: 'Bug not found'})
 })
+
+router.put('/:id/assign', AuthenticateUser, async(req, res) => {
+    if (req.user.role !== 'admin') {
+        return res.status(403).send({ message: 'Only admins can assign bugs' });
+    }
+
+    const { developerId } = req.body;
+    if (!developerId) {
+        return res.status(400).send({ message: 'Developer ID is required' });
+    }
+
+    try {
+        const updatedBug = await Bug.findByIdAndUpdate(
+            req.params.id,
+            {
+                $set: {
+                    assignedTo: developerId,
+                    status: 'inprogress',
+                    isApproved: true
+                }
+            },
+            { new: true }
+        )
+        .populate('reporter', 'username email')
+        .populate('assignedTo', 'username email role');
+
+        if (!updatedBug) {
+            return res.status(404).send({ message: 'Bug not found' });
+        }
+
+        res.send(updatedBug);
+    } catch (error) {
+        console.error('Error assigning bug:', error);
+        res.status(500).send({ message: 'Server error while assigning bug' });
+    }
+});
+
 module.exports = router
