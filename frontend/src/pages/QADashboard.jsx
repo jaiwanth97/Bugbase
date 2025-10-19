@@ -22,7 +22,7 @@ function QADashboard() {
   const fetchBugs = async () => {
     try {
       setError('');
-      const response = await axios.get('http://localhost:5000/api/bugs/qa/list', {
+      const response = await axios.get('https://bugbase.onrender.com/api/bugs/qa/list', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setBugs(response.data);
@@ -35,7 +35,7 @@ function QADashboard() {
 
   const handleReview = async (bugId, approved) => {
     try {
-      await axios.put(`http://localhost:5000/api/bugs/${bugId}/status`,
+      await axios.put(`https://bugbase.onrender.com/api/bugs/${bugId}/status`,
         { status: approved ? 'closed' : 'inprogress' },
         { headers: { Authorization: `Bearer ${token}` }}
       );

@@ -18,10 +18,10 @@ function AdminDashboard() {
   const fetchData = async () => {
     try {
       const [bugsRes, devsRes] = await Promise.all([
-        axios.get('http://localhost:5000/api/bugs', {
+        axios.get('https://bugbase.onrender.com/api/bugs', {
           headers: { Authorization: `Bearer ${token}` }
         }),
-        axios.get('http://localhost:5000/api/users/developers', {
+        axios.get('https://bugbase.onrender.com/api/users/developers', {
           headers: { Authorization: `Bearer ${token}` }
         })
       ]);
@@ -54,7 +54,7 @@ function AdminDashboard() {
     if (destination.droppableId.startsWith('dev-')) {
       const devId = destination.droppableId.replace('dev-', '');
       try {
-        await axios.put(`http://localhost:5000/api/bugs/${draggableId}/assign`,
+        await axios.put(`https://bugbase.onrender.com/api/bugs/${draggableId}/assign`,
           { developerId: devId },
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -68,7 +68,7 @@ function AdminDashboard() {
     // change status if dropped into a status column
     const newStatus = destination.droppableId;
     try {
-      await axios.put(`http://localhost:5000/api/bugs/${draggableId}/status`,
+      await axios.put(`https://bugbase.onrender.com/api/bugs/${draggableId}/status`,
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` } }
       );
@@ -81,7 +81,7 @@ function AdminDashboard() {
   const handleAssign = async (devId) => {
     if (!selectedBug) return;
     try {
-      await axios.put(`http://localhost:5000/api/bugs/${selectedBug._id}/assign`,
+      await axios.put(`https://bugbase.onrender.com/api/bugs/${selectedBug._id}/assign`,
         { developerId: devId },
         { headers: { Authorization: `Bearer ${token}` } }
       );

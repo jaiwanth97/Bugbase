@@ -30,7 +30,7 @@ function Dashboard() {
 
   const fetchBugs = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/bugs', {
+      const response = await axios.get('https://bugbase.onrender.com/api/bugs', {
         headers: { Authorization: `Bearer ${token}` }
       });
       
@@ -64,7 +64,7 @@ function Dashboard() {
     }
 
     try {
-      await axios.put(`http://localhost:5000/api/bugs/${draggableId}/status`, {
+      await axios.put(`https://bugbase.onrender.com/api/bugs/${draggableId}/status`, {
         status: destination.droppableId === 'inProgress' ? 'inprogress' : destination.droppableId
       }, {
         headers: { Authorization: `Bearer ${token}` }

@@ -21,7 +21,7 @@ function DevDashboard() {
   const fetchTasks = async () => {
     try {
       setError('');
-      const response = await axios.get('http://localhost:5000/api/bugs/assigned', {
+      const response = await axios.get('https://bugbase.onrender.com/api/bugs/assigned', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setTasks(response.data);
@@ -34,7 +34,7 @@ function DevDashboard() {
 
   const handleStatusUpdate = async (bugId, newStatus) => {
     try {
-      await axios.put(`http://localhost:5000/api/bugs/${bugId}/status`, {
+      await axios.put(`https://bugbase.onrender.com/api/bugs/${bugId}/status`, {
         status: newStatus
       }, {
         headers: { Authorization: `Bearer ${token}` }

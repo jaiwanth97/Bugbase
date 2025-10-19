@@ -42,7 +42,7 @@ function UserDashboard() {
         .filter(Boolean)
         .join('\n');
 
-      await axios.post('http://localhost:5000/api/bugs', {
+      await axios.post('https://bugbase.onrender.com/api/bugs', {
         title: bug.title,
         description: composedDescription,
         priority: bug.priority

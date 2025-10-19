@@ -10,7 +10,7 @@ function AuthProvider({ children }) {
 
   const login = async (email, password) => {
     try {
-      const response = await axios.post('http://localhost:5000/api/users/login', {
+      const response = await axios.post('https://bugbase.onrender.com/api/users/login', {
         email,
         password,
       });
@@ -20,7 +20,7 @@ function AuthProvider({ children }) {
       setToken(token);
       axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       
-      const userResponse = await axios.get('http://localhost:5000/api/users/me', {
+      const userResponse = await axios.get('https://bugbase.onrender.com/api/users/me', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setUser(userResponse.data.user);
@@ -48,7 +48,7 @@ function AuthProvider({ children }) {
       }
       try {
         axios.defaults.headers.common['Authorization'] = `Bearer ${token}`;
-        const res = await axios.get('http://localhost:5000/api/users/me', {
+        const res = await axios.get('https://bugbase.onrender.com/api/users/me', {
           headers: { Authorization: `Bearer ${token}` }
         });
         setUser(res.data.user);

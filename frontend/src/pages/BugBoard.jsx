@@ -10,7 +10,7 @@ function BugBoard() {
 
   const fetchBugs = async () => {
     try {
-      const response = await axios.get('http://localhost:5000/api/bugs', {
+      const response = await axios.get('https://bugbase.onrender.com/api/bugs', {
         headers: { Authorization: `Bearer ${token}` }
       });
       setBugs(response.data);
@@ -49,7 +49,7 @@ function BugBoard() {
     const newStatus = result.destination.droppableId;
 
     try {
-      await axios.put(`http://localhost:5000/api/bugs/${bugId}/status`, 
+      await axios.put(`https://bugbase.onrender.com/api/bugs/${bugId}/status`, 
         { status: newStatus },
         { headers: { Authorization: `Bearer ${token}` }}
       );
