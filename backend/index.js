@@ -13,7 +13,7 @@ app.use(express.json())
 app.use('/api/users', users)
 app.use('/api/bugs', bugs)
 
-mongoose.connect('mongodb://localhost/bugbase')
+mongoose.connect('mongodb+srv://jaiwanth97_db_user:Postbox97@bugbase.mkntsks.mongodb.net/?retryWrites=true&w=majority&appName=Bugbase')
     .then(()=> console.log('Connected to mongoDB'))
     .catch((err)=> console.log(err))
 
